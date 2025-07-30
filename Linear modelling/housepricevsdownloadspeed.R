@@ -4,27 +4,25 @@ house_prices<-read.csv('assignments/Cleaned Data/cleanHousePrices.csv')
 internet<-read.csv('assignments/Cleaned Data/cleanPerformance.csv')
 
 towns<-read.csv('assignments/Cleaned Data/Towns.csv')
-# house_prices <- house_prices %>%
-#   group_by(shortPostcode,Year) %>%
-#   summarise(average_price = mean(Price, na.rm = TRUE))
 
 colnames(house_prices)
 # Prepareinternet_perf_summary# Prepare aggregated internet data
 internet_perf_summary <- internet %>%
   select(
-    postcode,
+    shortPostcode,
     average_download_speed_mbit_s
-  ) 
-colnames(house_pricesXinternet)
+  ) %>% group_by(shortPostcode) %>% summarise(avg_download_speed = mean(average_download_speed_mbit_s))
+house_prices_summary<- house_prices %>% 
+  group_by(shortPostcode,Year) %>% summarise(average_price=mean(Price))
 # Join datasets
-house_pricesXinternet <- house_prices %>%
-  select(postcode="Postcode", Price,shortPostcode, Year)%>%
+house_pricesXinternet <- house_prices_summary %>%
+  select(average_price,shortPostcode)%>%
   inner_join(towns %>% select(shortPostcode, County), by = "shortPostcode") %>%
-  inner_join(internet_perf_summary, by = "postcode")
+  inner_join(internet_perf_summary, by = "shortPostcode")
 
 library(ggplot2)
 
-ggplot(house_pricesXinternet, aes(x = average_download_speed_mbit_s, y = Price, color = County)) +
+ggplot(house_pricesXinternet, aes(x = avg_download_speed, y = average_price, color = County)) +
   scale_y_log10(labels = label_number(scipen = 999)) + 
   geom_point(alpha = 0.6) +
   geom_smooth(method = "lm", se = TRUE) +

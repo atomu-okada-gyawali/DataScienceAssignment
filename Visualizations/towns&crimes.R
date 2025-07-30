@@ -1,9 +1,13 @@
-
+library(tidyverse)
+library(ggplot2)
 crimes= read_csv("assignments/Cleaned Data/cleanCrimes.csv")
-crimes%>%
+towns=read_csv("assignments/Cleaned Data/Towns.csv")
+colnames(crimes)
+colnames(towns)
+crimes<-crimes%>%
   # Join with towns on full Postcode
-  inner_join(towns %>% select(Postcode, County, District, Population2022, Population2023, Population2024), 
-             by = c("Postcode" = "Postcode")) %>%
+  inner_join(towns %>% select( shortPostcode,County, District, Population2022, Population2023, Population2024), 
+             by = "shortPostcode") %>%
   # Group and count crimes, including shortPostcode
   group_by(Postcode, shortPostcode, `Crime type`, District, County, Month, Population2022, Population2023, Population2024) %>%
   count(name = "n") %>%
@@ -16,9 +20,7 @@ crimes%>%
   )) %>%
   # Remove count and population columns
   select(-n, -Population2022, -Population2023, -Population2024)
-# library(ggplot2)
-library(tidyverse)
-library(ggplot2)
+
 # Filter for Drug offenses only
 drug_data <- crimes %>%
   filter(`Crime type` == "Drugs") 
@@ -71,7 +73,6 @@ radarchart(as.data.frame(radar_matrix),
            vlcex = 0.8)
 title("Radar Chart: Vehicle Crime Rates\nWest Yorkshire (June 2022)")
 
-colSums(is.na(crimes))
 # Filter for Robbery in one county/month
 robbery_data <- crimes %>%
   filter(`Crime type` == 'Robbery',

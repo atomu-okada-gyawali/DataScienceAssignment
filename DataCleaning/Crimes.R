@@ -56,8 +56,11 @@ cleanedCrimes <- Crimes %>%
   left_join(towns, by = "shortPostcode") %>%
   filter(County %in% c("SOUTH YORKSHIRE", "WEST YORKSHIRE")) %>%
   # Group by Postcode, shortPostcode, and Crime type, then count
-  group_by(Postcode, shortPostcode, `Crime type`) %>%
+  group_by(Postcode, shortPostcode, `Crime type`,Month) %>%
   summarise(n = n(), .groups = "drop")
-
+cleanedCrimes
 # Save cleaned dataset
 write.csv(cleanedCrimes, "assignments/Cleaned Data/cleanCrimes.csv", row.names = FALSE)
+
+
+

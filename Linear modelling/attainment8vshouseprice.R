@@ -12,7 +12,7 @@ colnames(house_prices)
 
 # Join and aggregate to prevent many-to-many issues
 house_pricesXmarks <- house_prices %>%
-  inner_join(marks, by = c("shortPostcode","Postcode", "Year")) %>% inner_join(towns,by="shortPostcode")
+  inner_join(marks, by = c("shortPostcode", "Year")) %>% inner_join(towns,by="shortPostcode")
 colnames(house_pricesXmarks)
 
 #[1] "X"               "Postcode"        "shortPostcode.x" "Price"           "Year"            "SchoolName"      "shortPostcode.y"

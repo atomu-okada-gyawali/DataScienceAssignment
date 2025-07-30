@@ -7,7 +7,7 @@ HousePrices2022 = read_csv("assignments/Obtained Data/Housing_Price/HousePrices2
 HousePrices2023 = read_csv("assignments/Obtained Data/Housing_Price/HousePrices2023.csv")
 HousePrices2024 = read_csv("assignments/Obtained Data/Housing_Price/HousePrices2024.csv")
 PopulationData = read_csv("assignments/Obtained Data/Population/Population2011.csv")
-
+class(HousePrices2021$Date_of_transfer)
 #Renaming the columns
 colnames(HousePrices2021)<-c("ID","Price","Date_of_transfer","Postcode","Property_Type","Old/New","Duration","PAON","SAON","Street","Locality","Town/City","District","County","PPD_Category_Type","Record_Status")
 colnames(HousePrices2022)<-c("ID","Price","Date_of_transfer","Postcode","Property_Type","Old/New","Duration","PAON","SAON","Street","Locality","Town/City","District","County","PPD_Category_Type","Record_Status")
@@ -49,7 +49,7 @@ Towns = HousePrices %>%
   select(shortPostcode,"Town/City",District,County,Population2020,Population2021,Population2022,Population2023,Population2024) %>% 
   group_by(shortPostcode) %>% 
   filter(row_number()==1) %>% 
-  arrange(County)=
+  arrange(County)
 
 write.csv(Towns, "assignments/Cleaned Data/Towns.csv")
 

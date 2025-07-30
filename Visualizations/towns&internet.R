@@ -1,9 +1,10 @@
 towns <- read_csv("assignments/Cleaned Data/Towns.csv") 
 internet<-read_csv("assignments/Cleaned Data/cleanPerformance.csv")
-prepared_internet = towns %>% 
-  inner_join(internet, by = "shortPostcode") %>% 
+colnames(internet)
+prepared_internet = internet %>% group_by(shortPostcode) %>% summarise(avg_download=mean(average_download_speed_mbit_s)) %>% 
+  inner_join(towns, by = "shortPostcode") %>% 
   select(District, County, avg_download) 
-prepared_internet %>% distinct(District,County)
+
 
 # Boxplot with facet_wrap by County
 ggplot( prepared_internet,aes(x = District, y = avg_download)) +
@@ -43,3 +44,4 @@ prepared_internet %>%
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
