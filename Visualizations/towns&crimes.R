@@ -3,13 +3,16 @@ library(ggplot2)
 crimes= read_csv("assignments/Cleaned Data/cleanCrimes.csv")
 towns=read_csv("assignments/Cleaned Data/Towns.csv")
 colnames(crimes)
+# [1] "shortPostcode" "Crime type"    "District"      "County"        "Month"         "Crime_rate"   
 colnames(towns)
+#  [1] "...1"           "shortPostcode"  "Town/City"      "District"       "County"         "Population2020"
+# [7] "Population2021" "Population2022" "Population2023" "Population2024"
 crimes<-crimes%>%
   # Join with towns on full Postcode
   inner_join(towns %>% select( shortPostcode,County, District, Population2022, Population2023, Population2024), 
              by = "shortPostcode") %>%
   # Group and count crimes, including shortPostcode
-  group_by(Postcode, shortPostcode, `Crime type`, District, County, Month, Population2022, Population2023, Population2024) %>%
+  group_by( shortPostcode, `Crime type`, District, County, Month, Population2022, Population2023, Population2024) %>%
   count(name = "n") %>%
   ungroup() %>%
   # Calculate crime rate per 10,000 people
@@ -24,7 +27,7 @@ crimes<-crimes%>%
 # Filter for Drug offenses only
 drug_data <- crimes %>%
   filter(`Crime type` == "Drugs") 
-
+drug_data %>% arrange(Crime_rate)
 # Plot: Separate boxplots for each county
 ggplot(drug_data, aes(x = District, y = Crime_rate)) +
   geom_boxplot() +
@@ -45,7 +48,7 @@ radar_data <- crimes %>%
          County == "WEST YORKSHIRE",
          Month == "2022-06") %>%
   group_by(District) %>%
-  summarise(rate = round(sum(Crime_rate),2), .groups = "drop",na.rm=TRUE)
+  summarise(rate = round(mean(Crime_rate),2), .groups = "drop",na.rm=TRUE)
 
 # Step 2: Transpose properly
 # Convert to a single row named vector with Districts as columns
@@ -79,7 +82,7 @@ robbery_data <- crimes %>%
          County == "SOUTH YORKSHIRE",
          Month == "2024-02") %>%
   group_by(District) %>%
-  summarise(rate = sum(Crime_rate,na.rm=TRUE))
+  summarise(rate = mean(Crime_rate,na.rm=TRUE))
 crimes %>%   filter(`Crime type` == 'Robbery',
                     County == "SOUTH YORKSHIRE",
                     Month == "2024-01",
@@ -96,7 +99,7 @@ ggplot(robbery_data, aes(x = "", y = rate, fill = District)) +
 
 library(tidyverse)
 library(lubridate)
-install.packages('lubridate')
+
 # Step 1: Filter for drug offenses only
 drug_data <- crimes %>%
   filter(`Crime type` == "Drugs") %>%

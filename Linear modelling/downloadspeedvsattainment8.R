@@ -16,6 +16,23 @@ combined <- marks %>%
   left_join(towns %>% select(shortPostcode, County), by = "shortPostcode") %>%
   drop_na(avg_download, Attainment8, County)
 
+remove_outliers_iqr <- function(data, column) {
+  # Ensure the column exists
+  if (!(column %in% colnames(data))) stop("Column not found")
+  
+  # Pull the values
+  vals <- data[[column]]
+  Q1 <- quantile(vals, 0.25, na.rm = TRUE)
+  Q3 <- quantile(vals, 0.75, na.rm = TRUE)
+  IQR_val <- Q3 - Q1
+  lower <- Q1 - 1.5 * IQR_val
+  upper <- Q3 + 1.5 * IQR_val
+  
+  # Filter the data using the logical vector directly
+  data[vals >= lower & vals <= upper, ]
+}
+
+combined %>% remove_outliers_iqr(avg_download) %>% remove_outliers_iqr((Attainment8))
 # Step 3: Plot
 ggplot(combined, aes(x = avg_download, y = Attainment8, color = County)) +
   geom_point(alpha = 0.8, size = 3) +

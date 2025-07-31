@@ -87,3 +87,4 @@ correlation_by_county <- house_pricesXdrugs_clean %>%
 
 cat("\n--- Correlation between Drug Crime Rate and House Price (by County) ---\n")
 print(correlation_by_county)
+

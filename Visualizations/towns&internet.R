@@ -1,10 +1,11 @@
 towns <- read_csv("assignments/Cleaned Data/Towns.csv") 
 internet<-read_csv("assignments/Cleaned Data/cleanPerformance.csv")
 colnames(internet)
-prepared_internet = internet %>% group_by(shortPostcode) %>% summarise(avg_download=mean(average_download_speed_mbit_s)) %>% 
-  inner_join(towns, by = "shortPostcode") %>% 
-  select(District, County, avg_download) 
-
+prepared_internet= internet%>%   inner_join(towns, by = "shortPostcode") %>% 
+  group_by(shortPostcode,District,County) %>%
+  summarise(
+    avg_download = mean(average_download_speed_mbit_s, na.rm = TRUE)
+  )
 
 # Boxplot with facet_wrap by County
 ggplot( prepared_internet,aes(x = District, y = avg_download)) +
@@ -21,6 +22,8 @@ ggplot( prepared_internet,aes(x = District, y = avg_download)) +
 
 # Bar chart for South Yorkshire
 prepared_internet %>%
+  group_by(District,County) %>% 
+  summarise(avg_download=mean(avg_download)) %>% 
   filter(County == "SOUTH YORKSHIRE") %>%
   ggplot(aes(x = District, y = avg_download, fill = District)) +
   geom_bar(stat = "identity", show.legend = FALSE) +
@@ -34,6 +37,8 @@ prepared_internet %>%
 
 # Bar chart for West Yorkshire
 prepared_internet %>%
+  group_by(District,County) %>% 
+  summarise(avg_download=mean(avg_download)) %>% 
   filter(County == "WEST YORKSHIRE") %>%
   ggplot(aes(x = District, y = avg_download, fill = District)) +
   geom_bar(stat = "identity", show.legend = FALSE) +

@@ -1,5 +1,3 @@
-
-
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
@@ -42,3 +40,4 @@ ggplot(avg_ks4final %>% filter(County %in% c("SOUTH YORKSHIRE", "WEST YORKSHIRE"
        y = "Average Attainment 8 Score") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+

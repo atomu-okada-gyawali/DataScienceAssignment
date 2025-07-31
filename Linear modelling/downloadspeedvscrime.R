@@ -30,6 +30,23 @@ final_df <- drug_2023_pop %>%
   inner_join(internet_avg, by = "shortPostcode") %>%
   drop_na(avg_download, drugs_per_10k, County)
 
+remove_outliers_iqr <- function(data, column) {
+  # Ensure the column exists
+  if (!(column %in% colnames(data))) stop("Column not found")
+  
+  # Pull the values
+  vals <- data[[column]]
+  Q1 <- quantile(vals, 0.25, na.rm = TRUE)
+  Q3 <- quantile(vals, 0.75, na.rm = TRUE)
+  IQR_val <- Q3 - Q1
+  lower <- Q1 - 1.5 * IQR_val
+  upper <- Q3 + 1.5 * IQR_val
+  
+  # Filter the data using the logical vector directly
+  data[vals >= lower & vals <= upper, ]
+}
+
+final_df %>% remove_outliers_iqr(avg_download) %>% remove_outliers_iqr(drugs_per_10k)
 # Step 5: Plot
 ggplot(final_df, aes(x = avg_download, y = drugs_per_10k, color = County)) +
   geom_point(size = 3, alpha = 0.8) +
@@ -48,3 +65,4 @@ summary(lm_model)
 # Step 7: Correlation
 cor_value <- cor(final_df$avg_download, final_df$drugs_per_10k, use = "complete.obs")
 cat("Correlation between average download speed and drug offenses per 10k:", round(cor_value, 3), "\n")
+

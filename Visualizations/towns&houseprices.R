@@ -1,17 +1,18 @@
 library(tidyverse)
-install.packages('ggrepel')
+library(scales)
 library(ggrepel)  # for nicer non-overlapping labels
 towns <- read_csv("assignments/Cleaned Data/Towns.csv") 
 housePrices <- read_csv("assignments/Cleaned Data/cleanHousePrices.csv") 
 colnames(housePrices)
-prepared = housePrices %>% inner_join(towns, by = "shortPostcode") %>% select(-'Postcode',-'shortPostcode',-'Town/City',-PPD_Category_Type ) %>% 
+prepared = housePrices %>% inner_join(towns, by = "shortPostcode") %>% select(-'Postcode',-'shortPostcode',-'Town/City' ) %>% 
   group_by(District,County,Year) %>% summarise(avg=mean(Price,na.rm=TRUE))
-
+prepared
 # Step 1: filter the data to only keep the last year per District (to position the label)
 label_data <- prepared %>%
   group_by(District) %>%
   filter(Year == max(Year))  # last year per District
 
+  options(scipen=999)
 # Step 2: plot with line, points, and labels at the end
 prepared %>%
   ggplot(aes(x = Year, y = avg, group = District, color = County)) +
@@ -50,7 +51,10 @@ ggplot(avg_2023, aes(x = reorder(District, -avg), y = avg, fill = County)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   facet_wrap(~ County, scales = "free_x")
 
-nprepared %>% ggplot( aes(x = reorder(District, -avg), y = avg)) +
+
+
+
+house_prices %>% inner_join(towns, by = "shortPostcode") %>% group_by(shortPostcode,District,County) %>% summarise(avg = mean(Price))%>% ggplot( aes(x = reorder(District, -avg), y = avg)) +
   geom_boxplot() +
   facet_wrap(~ County, scales = "free_x") +  # Separate plots for each County
   labs(

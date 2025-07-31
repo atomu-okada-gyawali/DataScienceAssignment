@@ -13,7 +13,7 @@ internet_perf_summary <- internet %>%
     average_download_speed_mbit_s
   ) %>% group_by(shortPostcode) %>% summarise(avg_download_speed = mean(average_download_speed_mbit_s))
 house_prices_summary<- house_prices %>% 
-  group_by(shortPostcode,Year) %>% summarise(average_price=mean(Price))
+  group_by(shortPostcode) %>% summarise(average_price=mean(Price))
 # Join datasets
 house_pricesXinternet <- house_prices_summary %>%
   select(average_price,shortPostcode)%>%
@@ -22,6 +22,15 @@ house_pricesXinternet <- house_prices_summary %>%
 
 library(ggplot2)
 
+remove_outliers_iqr <- function(data, column) {
+  Q1 <- quantile(data[[column]], 0.25, na.rm = TRUE)
+  Q3 <- quantile(data[[column]], 0.75, na.rm = TRUE)
+  IQR_val <- Q3 - Q1
+  lower <- Q1 - 1.5 * IQR_val
+  upper <- Q3 + 1.5 * IQR_val
+  data %>% filter(data[[column]] >= lower & data[[column]] <= upper)
+}
+house_pricesXinternet %>% remove_outliers_iqr("avg_download_speed") %>% remove_outliers_iqr("average_price")
 ggplot(house_pricesXinternet, aes(x = avg_download_speed, y = average_price, color = County)) +
   scale_y_log10(labels = label_number(scipen = 999)) + 
   geom_point(alpha = 0.6) +
@@ -33,6 +42,6 @@ ggplot(house_pricesXinternet, aes(x = avg_download_speed, y = average_price, col
   ) +
   theme_minimal()
 
-correlation <- cor(house_pricesXinternet$Price, house_pricesXinternet$average_download_speed_mbit_s, use = "complete.obs")
+correlation <- cor(house_pricesXinternet$average_price, house_pricesXinternet$avg_download_speed, use = "complete.obs")
 print(paste("Correlation:", round(correlation, 3)))
 
